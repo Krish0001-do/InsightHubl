@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Profile Finder</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="infinityLayer" class="infinity-layer" aria-hidden="true"></div>
+
+    <canvas id="fxCanvas" class="fx-canvas" aria-hidden="true"></canvas>
+
+    <div class="floating-bg" aria-hidden="true">
+        <span class="f" data-icon="/"></span>
+        <span class="f" data-icon="{ }"></span>
+        <span class="f" data-icon="git"></span>
+        <span class="f" data-icon="#"></span>
+        <span class="f" data-icon="()"></span>
+        <span class="f" data-icon="; "></span>
+        <span class="f" data-icon="[]"></span>
+        <span class="f" data-icon="++"></span>
+        <span class="f" data-icon="API"></span>
+        <span class="f" data-icon="CSS"></span>
+    </div>
+
+    <button id="infinityBtn" class="infinity-btn" type="button" aria-label="Move infinity pattern">∞</button>
+
+    <div class="container">
+        <div class="top-actions">
+            <button id="themeToggle" class="chip-btn" type="button" aria-pressed="false">Toggle Theme</button>
+            <button id="shareBtn" class="chip-btn hidden" type="button">Copy Share Link</button>
+            <button id="downloadBtn" class="chip-btn hidden" type="button">Download Card</button>
+        </div>
+
+        <h1>GitHub Profile Finder</h1>
+        
+        <div class="search-box">
+            <input type="text" id="username" placeholder="Enter GitHub username..." autocomplete="off" list="historyList">
+            <datalist id="historyList"></datalist>
+            <button id="searchBtn">Search</button>
+        </div>
+
+        <div id="searchResults" class="panel hidden"></div>
+
+        <div class="history-row hidden" id="historyRow">
+            <div id="historyChips" class="history"></div>
+            <button id="clearHistoryBtn" class="small-btn" type="button">Clear</button>
+        </div>
+
+        <div id="loading" class="loading hidden" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="loading-text">Fetching profile…</div>
+        </div>
+
+        <div id="error" class="error"></div>
+
+        <div id="profile" class="profile hidden">
+            <div class="profile-header">
+                <img id="avatar" src="" alt="Profile Picture">
+                <div class="profile-info">
+                    <h2 id="name"></h2>
+                    <p id="bio"></p>
+                    <a id="profileLink" href="" target="_blank">View GitHub Profile</a>
+                    <div class="profile-actions">
+                        <button id="copyUsernameBtn" class="small-btn" type="button">Copy Username</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="insights" class="insights hidden"></div>
+
+            <div id="compareSection" class="panel hidden">
+                <h3>🆚 Comparison</h3>
+                <div id="compareTable" class="compare-table"></div>
+                <div class="token-hint">Type two usernames like: <b>user1, user2</b> or <b>user1 vs user2</b></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="repos">0</span>
+                    <span class="stat-label">Repositories</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="followers">0</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="following">0</span>
+                    <span class="stat-label">Following</span>
+                </div>
+            </div>
+
+            <div class="details">
+                <p id="location"><span>📍</span> <span class="detail-value"></span></p>
+                <p id="company"><span>🏢</span> <span class="detail-value"></span></p>
+                <p id="blog"><span>🔗</span> <a class="detail-value" href="" target="_blank"></a></p>
+                <p id="twitter"><span>🐦</span> <a class="detail-value" href="" target="_blank"></a></p>
+                <p id="joined"><span>📅</span> Joined: <span class="detail-value"></span></p>
+            </div>
+
+            <div id="reposSection" class="repos-section">
+                <div class="section-header">
+                    <h3>📁 Repositories</h3>
+                    <div class="repo-controls">
+                        <select id="repoSort" aria-label="Sort repositories">
+                            <option value="updated" selected>Sort: Updated</option>
+                            <option value="pushed">Sort: Pushed</option>
+                            <option value="created">Sort: Created</option>
+                            <option value="full_name">Sort: Name</option>
+                        </select>
+                        <input id="repoQuery" type="text" placeholder="Search repo name" autocomplete="off">
+                        <input id="repoLanguage" type="text" placeholder="Filter language (e.g. JS)" autocomplete="off">
+                        <input id="minStars" type="number" min="0" step="1" placeholder="Min stars">
+                        <label class="check">
+                            <input id="excludeForks" type="checkbox">
+                            <span>Exclude forks</span>
+                        </label>
+                        <input id="updatedAfter" type="date" aria-label="Updated after">
+                        <button id="loadMoreRepos" class="small-btn" type="button">Load More</button>
+                    </div>
+                </div>
+                <div id="repoMeta" class="repo-meta"></div>
+                <div id="reposList" class="repos-list"></div>
+            </div>
+
+            <div id="readmeSection" class="panel hidden">
+                <h3>📄 README Preview</h3>
+                <div id="readmeTitle" class="repo-meta"></div>
+                <pre id="readmeContent" class="readme"></pre>
+            </div>
+
+            <div id="activitySection" class="panel hidden">
+                <h3>🕒 Recent Activity</h3>
+                <div id="activityList" class="mini-list"></div>
+            </div>
+
+            <div class="grid-sections">
+                <div id="languagesSection" class="panel hidden">
+                    <h3>📊 Language Stats</h3>
+                    <div id="langChart" class="lang-chart"></div>
+                </div>
+
+                <div id="orgsSection" class="panel hidden">
+                    <h3>🏢 Organizations</h3>
+                    <div id="orgsList" class="mini-list"></div>
+                </div>
+
+                <div id="followersSection" class="panel hidden">
+                    <h3>👥 Followers</h3>
+                    <div id="followersList" class="mini-list"></div>
+                </div>
+
+                <div id="followingSection" class="panel hidden">
+                    <h3>➡️ Following</h3>
+                    <div id="followingList" class="mini-list"></div>
+                </div>
+
+                <div id="gistsSection" class="panel hidden">
+                    <h3>🧩 Gists</h3>
+                    <div id="gistsList" class="mini-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
